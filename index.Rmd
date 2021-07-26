@@ -1,0 +1,52 @@
+---
+title: "Indicadores de Segurança Pública"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(magrittr)
+library(lubridate)
+library(readr)
+library(DT)
+dados <- read_csv("data/all_data_v00.csv", 
+                  col_types = cols(X1 = col_integer(), 
+                  id = col_integer(), date = col_date(format ="%Y-%m-%d")), 
+                  locale = locale(encoding = "ISO-8859-1"))
+
+#dados %<>% select(-X1)
+
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Ocorrências de Homicídio (2014) - AISP-12 Itapuã
+
+```{r}
+dados %>% filter(ano==2014) %>%
+    filter(aisp=="AISP 12 - Itapuã") %>% 
+    select(mes,homicidios) %>% arrange(homicidios) %>%
+    mutate(MES = month(ymd(140101) + months(mes - 1), label = TRUE)) %>%
+    ggplot(aes(x=MES,y=homicidios)) + geom_bar(stat = "identity")
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Tabela de dados 
+
+```{r}
+dados %>% filter(ano==2014) %>%
+    filter(aisp=="AISP 12 - Itapuã") %>% 
+    select(mes,homicidios) %>% arrange(homicidios) %>%
+    mutate(MES = month(ymd(140101) + months(mes - 1), label = TRUE)) %>% 
+    select(MES,homicidios) %>%  arrange(MES) %>%
+  datatable()
+```
